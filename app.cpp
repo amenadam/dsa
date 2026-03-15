@@ -16,7 +16,7 @@ private:
     double std_gpa;
 
 public:
-    void setData(studentType &);
+    void setData(studentType &, studentType std[]);
     void printData(studentType std[]);
     void sortStudentByName(studentType std[]);
     void sortStudentById(studentType std[]);
@@ -30,6 +30,7 @@ public:
     void setGpa(double);
 
     bool isValidGpa(double);
+    bool isIdExist(char[], studentType std[]);
 
     char *getName();
     int getAge();
@@ -124,15 +125,30 @@ bool studentType::isValidGpa(double gpa)
     }
 }
 
-void studentType::setData(studentType &student)
+bool studentType::isIdExist(char id[], studentType std[])
 {
-    cin.ignore();
+    bool result = false;
+    for (int i = 0; i < std_count; i++)
+    {
+        if (strcmp(id, std[i].std_id) == 0)
+        {
+            result = true;
+            break;
+        }
+    }
+
+    return result;
+}
+
+void studentType::setData(studentType &student, studentType std[])
+{
+
 NAME:
     cout << "\nEnter student's name: ";
     cin.getline(student.std_name, 50);
     for (int i = 0; i < strlen(student.std_name); i++)
     {
-        if (!isalpha(student.std_name[i]))
+        if (!isalpha(student.std_name[i]) && student.std_name[i] != ' ')
         {
             cout << "\nPlease enter valid name:";
             goto NAME;
@@ -142,8 +158,14 @@ NAME:
     cout << "\nEnter student's age: ";
     cin >> student.std_age;
     cin.ignore();
+ID:
     cout << "\nEnter student's Id: ";
     cin.getline(student.std_id, 10);
+    if (isIdExist(student.std_id, std))
+    {
+        cout << "ID already exist! Please new enter unique id!";
+        goto ID;
+    }
     cout << "\nEnter student's department: ";
     cin.getline(student.std_department, 50);
 GPA:
@@ -196,7 +218,13 @@ void studentType::sortStudentByName(studentType std[])
                 flag = true;
             }
         }
+        if (flag == false)
+        {
+            break;
+        }
     }
+
+    cout << "\n Students list sorted successfully by Name!";
 }
 
 void studentType::sortStudentById(studentType std[])
@@ -217,7 +245,13 @@ void studentType::sortStudentById(studentType std[])
                 flag = true;
             }
         }
+        if (flag == false)
+        {
+            break;
+        }
     }
+
+    cout << "\n Students list sorted successfully by ID!";
 }
 
 int studentType::searchStudentById(studentType std[], char key[])
@@ -227,6 +261,7 @@ int studentType::searchStudentById(studentType std[], char key[])
 
     do
     {
+
         if (strcmp(key, std[i].std_id) == 0)
         {
             loc = i;
@@ -280,9 +315,9 @@ void getDeveloperInformation()
 int main()
 {
     studentType obj, student[SIZE];
-    char search_key[50];
+    char search_key[10];
     char delete_key[10];
-    char option;
+    int option;
     int location;
 
 MENU:
@@ -297,20 +332,28 @@ MENU:
     cout << "\n 7. Developer Information";
     cout << "\n 0. Exit";
     cout << "\n Enter the option: ";
-    cin.ignore();
     cin >> option;
+    cin.ignore();
+
     switch (option)
     {
-    case '1':
-        obj.setData(student[std_count]);
+    case 1:
+        if (std_count >= SIZE)
+        {
+            cout << "\nStudent list is full!\n";
+        }
+        else
+        {
+            obj.setData(student[std_count], student);
+        }
         break;
-    case '2':
+    case 2:
         obj.printData(student);
         break;
-    case '3':
+    case 3:
         cout << "\n Enter student's id to search: ";
-        cin.ignore();
         cin.getline(search_key, 10);
+
         location = obj.searchStudentById(student, search_key);
         if (location >= 0)
         {
@@ -325,22 +368,21 @@ MENU:
             cout << "\n Student not found!\n";
         }
         break;
-    case '4':
+    case 4:
         obj.sortStudentByName(student);
         break;
-    case '5':
+    case 5:
         obj.sortStudentById(student);
         break;
-    case '6':
+    case 6:
         cout << "\n Enter student's id to delete: ";
-        cin.ignore();
         cin.getline(delete_key, 10);
         obj.deleteStudentById(student, delete_key);
         break;
-    case '7':
+    case 7:
         getDeveloperInformation();
         break;
-    case '0':
+    case 0:
         return 0;
     default:
         cout << "\n Please select correct option\n";
